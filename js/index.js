@@ -6,7 +6,7 @@ let intervalId
 let t = 0;
 let speed = 0;
 let playing = true;
-let k = {ArrowUp: 0, ArrowDown: 0, ArrowLeft: 0, ArrowRight: 0};
+let k = {ArrowUp: 0, ArrowDown: 0, ArrowLeft: 0, ArrowRight: 0, SpaceBar: 0};
 let isGameOver = false
 let perm = [];
 let timer = 0
@@ -19,6 +19,8 @@ let resources = []
 let score = 0
 let youWon = false
 let numberOfResources = 0
+let crush = false
+const GRAVITY = 0.98
 
 while (perm.length < 255) {
     while (perm.includes(val = Math.floor(Math.random() * 255)));
@@ -54,8 +56,8 @@ class Resources {
    //y para que salgan en medio del cuadro de 100x100 le sumamos 25 de alto
    this.y = c.height -50
   // Do this randomly in Y: ((Math.floor(Math.random() * c.height) -30 ));
-   this.width = size * 0.9;
-   this.height  = size * 0.9;
+   this.width = size * 1.5;
+   this.height  = size * 1.5;
    this.amount = amounts[Math.floor(Math.random()* amounts.length)]; // <-- random de recursos generados
    this.frameX = 0;  //<--- num de frames en la fila
    this.frameY = 0; //<--- si hay varias filas seria el numero de filas 
@@ -72,7 +74,7 @@ class Resources {
       // ctx.fillRect(this.x, this.y, this.width, this.height);
       ctx.fillStyle = 'white';
       ctx.font = '20px Orbitron';
-      ctx.fillText(this.amount, this.x + 15, this.y);
+      ctx.fillText("₿", this.x+2, this.y);
       ctx.drawImage(coin, this.frameX * this.spriteWidth + 5.8,0, this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height);
 
   
@@ -100,6 +102,10 @@ class Timer extends GameAsset {
 constructor() {
 super();
 this.timeleft = 15
+this.countDown = new Audio()
+this.countDown.src = "countdown.wav"
+this.countDownCero = new Audio()
+this.countDownCero.src = "runOutOfTime.mp3"
 }
 
 timerOn() {
@@ -107,10 +113,38 @@ timerOn() {
     this.timeleft --
   }
 document.getElementById("score").innerHTML = this.timeleft;
+
+if(this.timeleft <= 6 && this.timeleft >= 4) {
+  document.getElementById("score").innerHTML = `<span style="color:#E8CF00">  
+  ${this.timeleft}</span>`
+}
+if(this.timeleft <= 3) {
+  document.getElementById("score").innerHTML = `<span style="color:#FF0000">  
+  ${this.timeleft}</span>`
+  countdownTimerGame.shootCountDownSound()
+}
 if (this.timeleft == 0) {
   isGameOver = true
+  countdownTimerGame.countDown.pause()
+  countdownTimerGame.shootCountDownCero() 
+
 }
 }
+
+stopCountDownSound() {
+countdownTimerGame.countDown.pause()
+}
+
+shootCountDownSound() {
+  this.countDown.volume = 0.1
+  countdownTimerGame.countDown.play()
+}
+
+shootCountDownCero() {
+  this.countDownCero.volume = 0.1
+  countdownTimerGame.countDownCero.play()
+}
+
 }
 class Character extends GameAsset {
 	constructor(x, y, width, height, img) {
@@ -126,16 +160,19 @@ class Character extends GameAsset {
         this.lose = new Image()
         this.won = new Image()
         this.won.src = "images/you-won.png"
-        this.lose.src = "images/game-over.jpeg"
+        this.lose.src = "images/game-over.jpg"
         this.loseAudio = new Audio()
         this.loseAudio.src = "zapsplat_impacts_body_hit_ground_heavy_thud_001_43759.mp3"
         this.loseMusic = new Audio()
         this.loseMusic.src="mixkit-funny-game-over-2878.wav"
         this.winningSound = new Audio()
         this.winningSound.src = "you-won.mp3"
+        this.vy = 0
     }
 
 draw() {
+        this.vy = GRAVITY
+        this.y += this.vy
 
         let p1 = c.height - noise(t + this.x) * 0.25;
         let p2 = c.height - noise(t + 5 + this.x) * 0.25;
@@ -154,6 +191,7 @@ draw() {
         if(!playing || grounded && Math.abs(this.rot) > Math.PI * 0.5) {
           playing = false;
           isGameOver = true
+          crush = true
           this.rSpeed = 5;
           k.ArrowUp = 1;
           this.x -= speed * 5;
@@ -185,8 +223,6 @@ draw() {
         ctx.drawImage(player.lose, 0, 0, c.width, c.height); 
 
     
-        
-    
     } else {
         ctx.save();
         ctx.translate(this.x, this.y);
@@ -195,6 +231,11 @@ draw() {
         ctx.restore();
       }
     }
+
+jump() {
+  this.vy -=5
+}
+
 shootPedalingSound() {
 		this.audio.volume = 0.1;
         this.audio.play();
@@ -258,11 +299,12 @@ function start() {
 
 function gameOver() {
 	if (isGameOver) {
-        player.stopPedalingSound()
-        player.shootCrushSound()
-        player.shootMusicSound()
-        restart();
-	}
+    player.stopPedalingSound()    
+    countdownTimerGame.stopCountDownSound()
+    player.shootCrushSound()
+    player.shootMusicSound()
+    restart();
+  }
 }
 
 function youCryptoWinner() {
@@ -293,7 +335,6 @@ if(onkeyup) {
 player.shootPedalingSound()
 }
 
-
 // if(onkeydown) {
 // player.stopPedalingSound()
 // }
@@ -312,12 +353,11 @@ function checkCollitions() {
       youWon = true
     }
   };
-  console.log(score)
 }
 
 
 function handleResources() {
-  if (frame % 320 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
+  if (frame % 270 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
       resources.push(new Resources());
   } 
   for (let i = 0; i < resources.length; i++) {
@@ -328,7 +368,14 @@ function handleResources() {
 
 function restart() {
     clearInterval(intervalId);
-    start()
-}
+    setTimeout(function () {
+      location.reload()
+  }, 6000)
+    // intervaIdEnd = setInterval(() => {
+    // },1000 / 60);
+    // if (intervalIdEnd === 3) {
+      // document.location.reload()
+    }
+
 
 start()

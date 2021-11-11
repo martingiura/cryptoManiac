@@ -11,6 +11,23 @@ body {
   background-color: #213050;
 }
 
+.start-button {
+  text-align: center;
+  display: inline-block;
+  margin: 5px;
+  font-weight: bold;
+  padding: 10px 0 10px 10px;
+  background-color: #fee864;
+  text-shadow: -1px -1px black, 1px 1px white;
+  color: gray;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -o-border-radius: 7px;
+  border-radius: 7px;
+  box-shadow: 0 0.2em gray;
+  cursor: pointer;
+  border-radius: 50%;
+}
 #score {
   position: relative;
   margin: 0 auto;
@@ -32,7 +49,7 @@ body {
   -ms-flex-align: center;
   position: absolute;
   align-items: center;
-  background-image: url("../images/container-cryptoManiac.png");
+  background-image: url("../images/container-cryptoManiac1.jpg");
   background-size: 100%;
   width: 600px;
   height: auto;
@@ -56,16 +73,19 @@ body {
 }
 
 h2 {
-  color: white;
+  color: black;
   padding-left: 60px;
   padding-right: 30px;
-  background-color: black;
+  background-color: #fee864;
+  font-size: 16px;
+  border-radius: 95%;
 }
 #instructions1 {
   position: relative;
   background-color: black;
   width: 450px;
   height: 70px;
+  border-radius: 95%;
 }
 #instructions1 img {
   position: relative;
