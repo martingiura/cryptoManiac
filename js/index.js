@@ -7,8 +7,18 @@ let t = 0;
 let speed = 0;
 let playing = true;
 let k = {ArrowUp: 0, ArrowDown: 0, ArrowLeft: 0, ArrowRight: 0};
-let lose = false
+let isGameOver = false
 let perm = [];
+let timer = 0
+const coin = new Image();
+coin.src = "images/coin.png"
+const amounts = [20, 30, 40];
+let frame = 0
+let winningScore = 2
+let resources = []
+let score = 0
+let youWon = false
+let numberOfResources = 0
 
 while (perm.length < 255) {
     while (perm.includes(val = Math.floor(Math.random() * 255)));
@@ -37,6 +47,71 @@ class GameAsset {
 	}
 }
 
+class Resources {
+  constructor(x,y){
+   this.x = c.width  // <-- para que los recursos no salgan tanto a la derecha (100px)
+   // redondea por las 5 columnas y multiplica para que sea multiplos de 100/200/300/400/500 
+   //y para que salgan en medio del cuadro de 100x100 le sumamos 25 de alto
+   this.y = c.height -50
+  // Do this randomly in Y: ((Math.floor(Math.random() * c.height) -30 ));
+   this.width = size * 0.9;
+   this.height  = size * 0.9;
+   this.amount = amounts[Math.floor(Math.random()* amounts.length)]; // <-- random de recursos generados
+   this.frameX = 0;  //<--- num de frames en la fila
+   this.frameY = 0; //<--- si hay varias filas seria el numero de filas 
+   this.minFrame = 0; //
+   this.maxFrame = 5;
+   this.spriteWidth = 30; // <-- cuando frame X es 0 se le suma el ancho y empieza el nuevo FrameX en el ancho 144 (cortando)
+   this.spriteHeight = 30;
+   this.coinTouch = new Audio()
+   this.coinTouch.src = "coin-touch.wav"
+  }
+  draw(){
+    this.x -= 1.2
+      // ctx.fillStyle = 'yellow';
+      // ctx.fillRect(this.x, this.y, this.width, this.height);
+      ctx.fillStyle = 'white';
+      ctx.font = '20px Orbitron';
+      ctx.fillText(this.amount, this.x + 15, this.y);
+      ctx.drawImage(coin, this.frameX * this.spriteWidth + 5.8,0, this.spriteWidth, this.spriteHeight, this.x, this.y,this.width, this.height);
+
+  
+    }
+  update(){
+      if (frame % 10 === 0) {
+           if (this.frameX < this.maxFrame) {
+               this.frameX ++;
+           } else {
+               this.frameX = this.minFrame = 0;
+           }    
+       }
+}
+isTouching(player) {
+  return (
+    this.x < player.x + player.width &&
+    this.x + this.width > player.x &&
+    this.y < player.y + player.height &&
+    this.y + this.height > player.y
+  );
+}
+}
+
+class Timer extends GameAsset {
+constructor() {
+super();
+this.timeleft = 15
+}
+
+timerOn() {
+  if (frame % 60 === 0) {
+    this.timeleft --
+  }
+document.getElementById("score").innerHTML = this.timeleft;
+if (this.timeleft == 0) {
+  isGameOver = true
+}
+}
+}
 class Character extends GameAsset {
 	constructor(x, y, width, height, img) {
         super(x, y, width, height, img);
@@ -45,9 +120,19 @@ class Character extends GameAsset {
         this.ySpeed = 0;
         this.rot = 0;
         this.rSpeed = 0;
-        this.image.src = "images/frame-1.png";
+        this.image.src = "images/1440132437-vector-removebg-preview (1).png";
         this.audio = new Audio();
         this.audio.src = "mixkit-bicycle-pedal-accelerating-2104.wav"
+        this.lose = new Image()
+        this.won = new Image()
+        this.won.src = "images/you-won.png"
+        this.lose.src = "images/game-over.jpeg"
+        this.loseAudio = new Audio()
+        this.loseAudio.src = "zapsplat_impacts_body_hit_ground_heavy_thud_001_43759.mp3"
+        this.loseMusic = new Audio()
+        this.loseMusic.src="mixkit-funny-game-over-2878.wav"
+        this.winningSound = new Audio()
+        this.winningSound.src = "you-won.mp3"
     }
 
 draw() {
@@ -68,19 +153,21 @@ draw() {
     
         if(!playing || grounded && Math.abs(this.rot) > Math.PI * 0.5) {
           playing = false;
+          isGameOver = true
           this.rSpeed = 5;
           k.ArrowUp = 1;
           this.x -= speed * 5;
-        }
-    
+       
+         }
+       
         let angle = Math.atan2((p2 - size) - this.y, (this.x + 5) - this.x);
     
         // this.rot = angle;
     
         this.y += this.ySpeed;
     
-        if(grounded && playing) {
-          this.rot -= (this.rot - angle) * 0.5;
+          if(grounded && playing) {
+            this.rot -= (this.rot - angle) * 0.5;
           this.rSpeed = this.rSpeed - (angle - this.rot);
         }
     
@@ -90,15 +177,24 @@ draw() {
         if(this.rot > Math.PI) this.rot = -Math.PI;
         if(this.rot < -Math.PI) this.rot = Math.PI;
     
+    if(youWon ===true) {
+      ctx.drawImage(player.won, 0, 0, c.width, c.height); 
+    }
+
+    if (isGameOver === true && youWon === false) {
+        ctx.drawImage(player.lose, 0, 0, c.width, c.height); 
+
     
+        
+    
+    } else {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rot);
         ctx.drawImage(this.image, -size, -size, 40, 40);
-    
         ctx.restore();
       }
-
+    }
 shootPedalingSound() {
 		this.audio.volume = 0.1;
         this.audio.play();
@@ -107,6 +203,19 @@ shootPedalingSound() {
 stopPedalingSound() {
         this.audio.pause();
     }
+
+shootCrushSound() {
+		this.loseAudio.volume = 0.05;
+        this.loseAudio.play();
+    }    
+shootMusicSound() {
+		this.loseMusic.volume = 0.05;
+        this.loseMusic.play();
+    }      
+shootWinnerSound() {
+  this.audio.volume = 0.05
+  this.winningSound.play(); 
+}
 
 loop () {
 
@@ -131,120 +240,48 @@ loop () {
   this.draw();
 }
 }
-// class Coins extends GameAsset {
-//     constructor(x, y, width, height, img) {
-//         super(x, y, width, height, img);
-//     this.image.src="images/coin-sprite-animation.png"
 
-// sprite(options) {
-//     let that = {}
-//     that.context = options.context;
-//     that.width = options.width;
-//     that.height = options.height;
-//     that.image = options.image;
 
-//     return that;
-
-// }
-//     }
-
-// }
-
-playerImage = "images/frame-1.png"
+playerImage = "images/1440132437-vector-removebg-preview (1).png"
 let player = new Character(-15,-15,50,50,playerImage)
-
-
-// var coinImage = new Image();
-// coinImage.src = "images/coin-sprite-animation.png";
-
-// function sprite (options) {
-				
-//     var that = {};
-					
-//     that.context = options.context;
-//     that.width = options.width;
-//     that.height = options.height;
-//     that.image = options.image;
-
-//     return that;
-// }
-
-// var coin = sprite({
-//     context: c.getContext("2d")
-//     width: 50,
-//     height: 50,
-//     image: coinImage
-// });
-
-// function sprite (options) {
-
-         
-//         that.render = function () {
-    
-//         // Draw the animation
-//         that.context.drawImage(
-//             that.image,
-//             frameIndex * that.width / numberOfFrames,
-//             0,
-//             that.width / numberOfFrames,
-//             that.height,
-//             0,
-//             0,
-//             that.width / numberOfFrames,
-//             that.height);
-//      };   
-        
-
-//     var that = {},
-//     frameIndex = 0,
-//     tickCount = 0,
-//     ticksPerFrame = 0,
-//     numberOfFrames = options.numberOfFrames || 1;
-
-// that.loop = options.loop;
-
-//     that.update = function () {
-
-//         tickCount += 1;
-			
-//         if (tickCount > ticksPerFrame) {
-        
-//             tickCount = 0;
-        
-//             // If the current frame index is in range
-//             if (frameIndex < numberOfFrames - 1) {	
-//                 // Go to the next frame
-//                 frameIndex += 1;
-//             } else if (that.loop) {
-//                 frameIndex = 0;
-//             }
-//         }
-//     };
-
-// }
-    
-// function gameLoop () {
-
-//     window.requestAnimationFrame(gameLoop);
-    
-//     coin.update();
-//     coin.render();
-//   }
-  
-//   // Start the game loop as soon as the sprite sheet is loaded
-//   coinImage.addEventListener("load", gameLoop);
+timerImage = "images/1440132437-vector-removebg-preview (1).png"
+let countdownTimerGame = new Timer()
 
 function start() {
 	if (intervalId) return;
 	intervalId = setInterval(() => {
-		update();
+    update()
+    countdownTimerGame.timerOn()
+    
 	}, 1000 / 60);
+}
+
+function gameOver() {
+	if (isGameOver) {
+        player.stopPedalingSound()
+        player.shootCrushSound()
+        player.shootMusicSound()
+        restart();
+	}
+}
+
+function youCryptoWinner() {
+  if (youWon === true) {
+    player.shootWinnerSound()
+  }
 }
 
 function update() {
     player.loop();
     player.draw();
     checkKeys();
+    gameOver();
+    frame++
+    checkCollitions()
+    handleResources()
+    youCryptoWinner()
+    
+
 }
 
 function checkKeys() {
@@ -256,9 +293,42 @@ if(onkeyup) {
 player.shootPedalingSound()
 }
 
+
 // if(onkeydown) {
 // player.stopPedalingSound()
 // }
+}
+
+function checkCollitions() {
+  for (let i=0; i < resources.length; i++) {
+    if (resources[i].isTouching(player)) {
+      score +=1;
+      resources[i].coinTouch.play()
+    numberOfResources += resources[i].amount;
+            resources.splice(i,1);
+            i --;
+    }
+    if (score === winningScore) {
+      youWon = true
+    }
+  };
+  console.log(score)
+}
+
+
+function handleResources() {
+  if (frame % 320 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
+      resources.push(new Resources());
+  } 
+  for (let i = 0; i < resources.length; i++) {
+      resources[i].draw();
+      resources[i].update();
+      } 
+  }
+
+function restart() {
+    clearInterval(intervalId);
+    start()
 }
 
 start()
