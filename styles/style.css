@@ -1,12 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap");
 
 h1 {
-  position: absolute;
   font: sans-serif;
   font-weight: bold;
   color: white;
-  width: auto;
-  height: auto;
 }
 
 body {
@@ -83,11 +80,10 @@ aside {
 #instructions1 {
   padding: 10px;
   margin-right: 10px;
-  height: auto;
   color: white;
   background-color: black;
   width: 25%;
-  height: 400px;
+  height: 450px;
   border: 2px solid #f8b500;
   border-radius: 25px;
   font: sans-serif;
