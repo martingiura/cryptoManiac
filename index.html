@@ -12,24 +12,26 @@
 	<body>
 		<div id= "mainContainer">
 		<div id="instructions1">
-			<span>INSTRUCTIONS:
-			You have 15 seconds to grab at least 3 bitcoins to WIN.ArrowUp: Aceelerate
-			ArrowRight: Rotate right
-			ArrowLeft: Rotate Left
-
-			Can you make it? If you WIN you will be RICH forever. If you LOSE you are going to be poor.
-			Just watch your head...
-		
-			<hr size= 2px width=100px color=#f8b500>
-		</span>
-				<img src="../images/arrow-keys.jpeg" alt="ArrowKeys">
+			<p>INSTRUCTIONS:
+				<ul>You have 15 seconds to grab at least 3 bitcoins to WIN.</ul>
+				<ul>ArrowUp: Accelerate</ul>
+				<ul>ArrowRight: Rotate right</ul>
+					<ul>ArrowLeft: Rotate Left</ul>
+					<ul>If you hit your head you Lose</ul>
+					<ul>Good Luck!</ul>
+					
+		</p>
+		<button id="button" type="button" class="btn btn-warning" onclick="start()">START</button>
+		<button id="button-restart" onclick="buttonReset()">RESTART</button>
+		<hr size= 2px width=100px color=#f8b500>
+			
+				<img src="./images/arrow-keys.jpeg" alt="ArrowKeys" class="keys">
 			</div>
 		<div id="CryptoC"> 
             <div id="container"><div id="time-left">0</div></div>
         
 		<canvas id="canvas" width="600," height="400," style="border: 1px solid #fee864"></canvas>
-		<button id="button" type="button" class="btn btn-warning">START</button>
-		<button id="button-restart">RESTART</button>
+		
 		<div id="coins-captured">0</div>
 		
 	
