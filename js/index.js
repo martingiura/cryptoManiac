@@ -1,6 +1,8 @@
 // Trae elementos del DOM
 const c = document.querySelector("#canvas");
 const ctx = c.getContext("2d");
+const $button = document.querySelector("button");
+const $buttonRestart = document.querySelector("#button-restart");
 const size = 15;
 let intervalId
 let t = 0;
@@ -21,6 +23,8 @@ let youWon = false
 let numberOfResources = 0
 let crush = false
 const GRAVITY = 0.98
+let timeLeftDom = 0
+let soundOn = 0
 
 while (perm.length < 255) {
     while (perm.includes(val = Math.floor(Math.random() * 255)));
@@ -109,19 +113,29 @@ this.countDownCero.src = "runOutOfTime.mp3"
 }
 
 timerOn() {
-  if (frame % 60 === 0) {
-    this.timeleft --
+  
+  if (youWon === true) {
+    document.getElementById("time-left").innerHTML = "WINNER!"
+    
   }
-document.getElementById("score").innerHTML = this.timeleft;
+  
+  if (frame % 60 === 0 && !youWon) {
+    this.timeleft --
 
-if(this.timeleft <= 6 && this.timeleft >= 4) {
-  document.getElementById("score").innerHTML = `<span style="color:#E8CF00">  
-  ${this.timeleft}</span>`
+timeLeftDom = this.timeleft + "s"
+document.getElementById("time-left").innerHTML = timeLeftDom
+  }
+
+
+if(this.timeleft <= 6 && this.timeleft >= 4 && !youWon) {
+  document.getElementById("time-left").innerHTML = `<span style="color:#E8CF00">  
+  ${timeLeftDom}</span>`
 }
-if(this.timeleft <= 3) {
-  document.getElementById("score").innerHTML = `<span style="color:#FF0000">  
-  ${this.timeleft}</span>`
+if(this.timeleft <= 3 && !youWon) {
+  document.getElementById("time-left").innerHTML = `<span style="color:#FF0000">  
+  ${timeLeftDom}</span>`
   countdownTimerGame.shootCountDownSound()
+
 }
 if (this.timeleft == 0) {
   isGameOver = true
@@ -254,7 +268,7 @@ shootMusicSound() {
         this.loseMusic.play();
     }      
 shootWinnerSound() {
-  this.audio.volume = 0.05
+  this.winningSound.volume = 0.1
   this.winningSound.play(); 
 }
 
@@ -308,8 +322,13 @@ function gameOver() {
 }
 
 function youCryptoWinner() {
-  if (youWon === true) {
-    player.shootWinnerSound()
+  if (youWon === true && soundOn === 0) {
+  
+    player.stopPedalingSound()
+    countdownTimerGame.stopCountDownSound()  
+    player.shootWinnerSound() 
+    soundOn += 1
+    ctx.restore();
   }
 }
 
@@ -331,7 +350,7 @@ onkeydown = d => k[d.key] = 1;
 
 onkeyup = d => k[d.key] = 0;
 
-if(onkeyup) {
+if(onkeyup && !youWon) {
 player.shootPedalingSound()
 }
 
@@ -348,6 +367,7 @@ function checkCollitions() {
     numberOfResources += resources[i].amount;
             resources.splice(i,1);
             i --;
+    document.getElementById("coins-captured").innerHTML = score
     }
     if (score === winningScore) {
       youWon = true
@@ -369,13 +389,21 @@ function handleResources() {
 function restart() {
     clearInterval(intervalId);
     setTimeout(function () {
-      location.reload()
+    
   }, 6000)
     // intervaIdEnd = setInterval(() => {
     // },1000 / 60);
     // if (intervalIdEnd === 3) {
       // document.location.reload()
     }
+   
+    $buttonRestart.addEventListener("click", event => {
+      document.location.reload()
+    } )  
 
 
-start()
+    $button.addEventListener("click", event => {
+      start()
+    } )  
+    
+    

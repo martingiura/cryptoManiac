@@ -5,23 +5,37 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Crypto Maniac</title>
-        <link rel="stylesheet" type="text/css" href="styles/style.css" />
+		<link rel="stylesheet" type="text/css" href="styles/style.css" />
+		
+		
 	</head>
 	<body>
-		<h1>Crypto Maniac</h1>
+		<div id= "mainContainer">
+		<div id="instructions1">
+			<span>INSTRUCTIONS:
+			You have 15 seconds to grab at least 3 bitcoins to WIN.ArrowUp: Aceelerate
+			ArrowRight: Rotate right
+			ArrowLeft: Rotate Left
+
+			Can you make it? If you WIN you will be RICH forever. If you LOSE you are going to be poor.
+			Just watch your head...
+		
+			<hr size= 2px width=100px color=#f8b500>
+		</span>
+				<img src="../images/arrow-keys.jpeg" alt="ArrowKeys">
+			</div>
 		<div id="CryptoC"> 
-            <div id="score">0</div><div> <h1>seconds </h1></div>
+            <div id="container"><div id="time-left">0</div></div>
         
 		<canvas id="canvas" width="600," height="400," style="border: 1px solid #fee864"></canvas>
-		<button class="start-button">START</button>
-		<div id="instructions1">
-	<h2>You have 15 seconds to grab at least 3 bitcoins to WIN. Can you make it?
-		If you WIN you will be RICH forever. If you LOSE you are going to be poor.
-		Just watch your head...
-		<!-- <img src="https://www.pikpng.com/pngl/m/279-2790082_elonlol-discord-emoji-elon-musk-and-pewdiepie-clipart.png" alt="Elonlol Discord Emoji - Elon Musk And Pewdiepie Clipart@pikpng.com"> -->
-	</h2></div>
+		<button id="button" type="button" class="btn btn-warning">START</button>
+		<button id="button-restart">RESTART</button>
+		<div id="coins-captured">0</div>
+		
 	
 </div>
+</div>
 		<script src="js/index.js"></script>
+		
 	</body>
 </html>
