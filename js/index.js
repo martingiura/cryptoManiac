@@ -16,13 +16,13 @@ const coin = new Image();
 coin.src = "images/coin.png"
 const amounts = [20, 30, 40];
 let frame = 0
-let winningScore = 2
+let winningScore = 3
 let resources = []
 let score = 0
 let youWon = false
 let numberOfResources = 0
 let crush = false
-const GRAVITY = 0.98
+// const GRAVITY = 0.98
 let timeLeftDom = 0
 let soundOn = 0
 
@@ -185,8 +185,8 @@ class Character extends GameAsset {
     }
 
 draw() {
-        this.vy = GRAVITY
-        this.y += this.vy
+        // this.vy = GRAVITY
+        // this.y += this.vy
 
         let p1 = c.height - noise(t + this.x) * 0.25;
         let p2 = c.height - noise(t + 5 + this.x) * 0.25;
@@ -377,7 +377,7 @@ function checkCollitions() {
 
 
 function handleResources() {
-  if (frame % 270 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
+  if (frame % 230 === 0 && score < winningScore){   // <-- cada 100 frames crea un recurso (instancia) que se empuja al arreglo SI el score es menor al WINNINGSCORE
       resources.push(new Resources());
   } 
   for (let i = 0; i < resources.length; i++) {
@@ -397,9 +397,11 @@ function restart() {
       // document.location.reload()
     }
    
+    function buttonReset() {
     $buttonRestart.addEventListener("click", event => {
-      document.location.reload()
+      window.location.reload()
     } )  
+  }
 
 
     $button.addEventListener("click", event => {
