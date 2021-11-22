@@ -25,6 +25,7 @@ let crush = false
 // const GRAVITY = 0.98
 let timeLeftDom = 0
 let soundOn = 0
+const floorImage = "images/tile.png"
 
 while (perm.length < 255) {
     while (perm.includes(val = Math.floor(Math.random() * 255)));
@@ -135,8 +136,14 @@ if(this.timeleft <= 3 && !youWon) {
   document.getElementById("time-left").innerHTML = `<span style="color:#FF0000">  
   ${timeLeftDom}</span>`
   countdownTimerGame.shootCountDownSound()
-
 }
+
+if(this.timeleft <= 3 && isGameOver) {
+  document.getElementById("time-left").innerHTML = `<span style="color:#FF0000">  
+  </span>`
+  countdownTimerGame.stopCountDownSound()
+}
+
 if (this.timeleft == 0) {
   isGameOver = true
   countdownTimerGame.countDown.pause()
@@ -286,8 +293,10 @@ loop () {
 
   for (let i = 0; i < c.width; i++) {
     ctx.lineTo(i, c.height - noise(t + i) * 0.25);
+    // ctx.drawImage(floorImage, i, c.height - noise(t + i) * 0.25), c.width, c.height; 
   }
 
+  // ctx.drawImage(c.width, c.height);
   ctx.lineTo(c.width, c.height);
 
   ctx.fill();
